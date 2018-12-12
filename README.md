@@ -4,10 +4,10 @@ This is my first game by python <br>
 分为两个部分<br>
 <table>
   <tr>
-    <td>飞机大战</td>
+    <td>1</td><td>飞机大战</td>
   </tr>
   <tr>
-    <td>超级玛丽变态版</td>
+    <td>2</td><td>超级玛丽变态版</td>
   </tr>
 </table>
   
