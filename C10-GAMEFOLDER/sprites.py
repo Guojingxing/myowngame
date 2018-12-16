@@ -2,6 +2,7 @@ import pygame as pg
 from pygame.locals import *
 import random as rd
 from settings import *
+from maps import *
 vec = pg.math.Vector2
 
 class Spritesheet:
@@ -25,6 +26,7 @@ class Player(pg.sprite.Sprite):
         self.jumping = False
         self.current_frame = 0
         self.last_update = 0
+        #self.lives = 5 #一共有5条命
         #加载图片
         self.load_images()
         self.image = self.standing_frames[0]
@@ -150,17 +152,26 @@ class Platform(pg.sprite.Sprite):
         self.groups = game.all_sprites, game.platforms
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
-        images = [self.game.spritesheet.get_image(0, 288, 380, 94),
-                  self.game.spritesheet.get_image(213, 1662, 201, 100),
-                  self.game.spritesheet.get_image(0, 384, 380, 94),
-                  self.game.spritesheet.get_image(382, 204, 200, 100)]
-        self.image = rd.choice(images)
+        self.images = [self.game.spritesheet.get_image(0, 288, 380, 94), #长
+                  self.game.spritesheet.get_image(213, 1662, 201, 100), #短
+                  self.game.spritesheet.get_image(0, 384, 380, 94), #裂长
+                  self.game.spritesheet.get_image(382, 204, 200, 100) ] #裂短
+        self.image = rd.choice(self.images)
         self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
         if rd.randrange(100) < POW_SPAWN_PCT:
             Pow(self.game, self)
+
+        #if rd.randrange(100) < POW_SPAWN_PCT-3:
+            #Carrot(self.game, self)
+        #if rd.randrange(100) < POW_SPAWN_PCT+30:
+            #Bronze(self.game, self)
+        #if rd.randrange(100) < POW_SPAWN_PCT+15:
+            #Silver(self.game, self)
+        #if rd.randrange(100) < POW_SPAWN_PCT-5:
+            #Gold(self.game, self)
 
 class Platform2(pg.sprite.Sprite):
     def __init__(self, game, x, y):
@@ -182,6 +193,27 @@ class Platform2(pg.sprite.Sprite):
             if rd.randrange(10000) < POW_SPAWN_PCT:
                 p = Pow2(self.game, self)
                 self.game.powerups.add(p)
+                self.game.all_sprites.add(p)
+
+        if self.rect.x > 1280:
+            if rd.randrange(10000) < POW_SPAWN_PCT+3:
+                p = Carrot2(self.game, self)
+                self.game.carrots.add(p)
+                self.game.all_sprites.add(p)
+        if self.rect.x > 1280:
+            if rd.randrange(10000) < POW_SPAWN_PCT+30:
+                p = Bronze2(self.game, self)
+                self.game.bronzes.add(p)
+                self.game.all_sprites.add(p)
+        if self.rect.x > 1280:
+            if rd.randrange(10000) < POW_SPAWN_PCT+15:
+                p = Silver2(self.game, self)
+                self.game.silvers.add(p)
+                self.game.all_sprites.add(p)
+        if self.rect.x > 1280:
+            if rd.randrange(10000) < POW_SPAWN_PCT-5:
+                p = Gold2(self.game, self)
+                self.game.golds.add(p)
                 self.game.all_sprites.add(p)
 
 class Pow(pg.sprite.Sprite):
@@ -211,6 +243,154 @@ class Pow2(pg.sprite.Sprite):
         self.plat = plat
         self.type = rd.choice(['boost'])
         self.image = self.game.spritesheet.get_image(820, 1805, 71, 70)
+        self.image.set_colorkey(BLACK)
+        self.rect = self.image.get_rect()
+        self.rect.centerx = self.plat.rect.centerx
+        self.rect.bottom = self.plat.rect.top - 5
+
+    def update(self):
+        self.rect.bottom = self.plat.rect.top - 5
+        if not self.game.platforms.has(self.plat):
+            self.kill()
+
+class Carrot(pg.sprite.Sprite):
+    def __init__(self, game, plat):
+        self._layer = POW_LAYER
+        self.groups = game.all_sprites, game.carrots
+        pg.sprite.Sprite.__init__(self, self.groups)
+        self.game = game
+        self.plat = plat
+        self.type = rd.choice(['carrot'])
+        self.image = self.game.spritesheet.get_image(820, 1733, 78, 70)
+        self.image.set_colorkey(BLACK)
+        self.rect = self.image.get_rect()
+        self.rect.centerx = self.plat.rect.centerx - 20
+        self.rect.bottom = self.plat.rect.top - 5
+
+    def update(self):
+        self.rect.bottom = self.plat.rect.top - 5
+        if not self.game.platforms.has(self.plat):
+            self.kill()
+
+class Carrot2(pg.sprite.Sprite):
+    def __init__(self, game, plat):
+        self._layer = POW_LAYER
+        pg.sprite.Sprite.__init__(self)
+        self.game = game
+        self.plat = plat
+        self.type = rd.choice(['carrot'])
+        self.image = self.game.spritesheet.get_image(820, 1733, 78, 70)
+        self.image.set_colorkey(BLACK)
+        self.rect = self.image.get_rect()
+        self.rect.centerx = self.plat.rect.centerx - 20
+        self.rect.bottom = self.plat.rect.top - 5
+
+    def update(self):
+        self.rect.bottom = self.plat.rect.top - 5
+        if not self.game.platforms.has(self.plat):
+            self.kill()
+
+class Bronze(pg.sprite.Sprite):
+    def __init__(self, game, plat):
+        self._layer = POW_LAYER
+        self.groups = game.all_sprites, game.powerups
+        pg.sprite.Sprite.__init__(self, self.groups)
+        self.game = game
+        self.plat = plat
+        self.type = rd.choice(['bronze'])
+        self.image = self.game.spritesheet.get_image(329, 1390, 60, 61)
+        self.image.set_colorkey(BLACK)
+        self.rect = self.image.get_rect()
+        self.rect.centerx = self.plat.rect.centerx
+        self.rect.bottom = self.plat.rect.top - 5
+
+    def update(self):
+        self.rect.bottom = self.plat.rect.top - 5
+        if not self.game.platforms.has(self.plat):
+            self.kill()
+
+class Bronze2(pg.sprite.Sprite):
+    def __init__(self, game, plat):
+        self._layer = POW_LAYER
+        pg.sprite.Sprite.__init__(self)
+        self.game = game
+        self.plat = plat
+        self.type = rd.choice(['bronze'])
+        self.image = self.game.spritesheet.get_image(329, 1390, 60, 61)
+        self.image.set_colorkey(BLACK)
+        self.rect = self.image.get_rect()
+        self.rect.centerx = self.plat.rect.centerx
+        self.rect.bottom = self.plat.rect.top - 5
+
+    def update(self):
+        self.rect.bottom = self.plat.rect.top - 5
+        if not self.game.platforms.has(self.plat):
+            self.kill()
+
+class Silver(pg.sprite.Sprite):
+    def __init__(self, game, plat):
+        self._layer = POW_LAYER
+        self.groups = game.all_sprites, game.powerups
+        pg.sprite.Sprite.__init__(self, self.groups)
+        self.game = game
+        self.plat = plat
+        self.type = rd.choice(['silver'])
+        self.image = self.game.spritesheet.get_image(307, 1981, 61, 61)
+        self.image.set_colorkey(BLACK)
+        self.rect = self.image.get_rect()
+        self.rect.centerx = self.plat.rect.centerx
+        self.rect.bottom = self.plat.rect.top - 5
+
+    def update(self):
+        self.rect.bottom = self.plat.rect.top - 5
+        if not self.game.platforms.has(self.plat):
+            self.kill()
+
+class Silver2(pg.sprite.Sprite):
+    def __init__(self, game, plat):
+        self._layer = POW_LAYER
+        pg.sprite.Sprite.__init__(self)
+        self.game = game
+        self.plat = plat
+        self.type = rd.choice(['silver'])
+        self.image = self.game.spritesheet.get_image(307, 1981, 61, 61)
+        self.image.set_colorkey(BLACK)
+        self.rect = self.image.get_rect()
+        self.rect.centerx = self.plat.rect.centerx
+        self.rect.bottom = self.plat.rect.top - 5
+
+    def update(self):
+        self.rect.bottom = self.plat.rect.top - 5
+        if not self.game.platforms.has(self.plat):
+            self.kill()
+
+class Gold(pg.sprite.Sprite):
+    def __init__(self, game, plat):
+        self._layer = POW_LAYER
+        self.groups = game.all_sprites, game.powerups
+        pg.sprite.Sprite.__init__(self, self.groups)
+        self.game = game
+        self.plat = plat
+        self.type = rd.choice(['gold'])
+        self.image = self.game.spritesheet.get_image(244, 1981, 61, 61)
+        self.image.set_colorkey(BLACK)
+        self.rect = self.image.get_rect()
+        self.rect.centerx = self.plat.rect.centerx
+        self.rect.bottom = self.plat.rect.top - 5
+
+    def update(self):
+        self.rect.bottom = self.plat.rect.top - 5
+        if not self.game.platforms.has(self.plat):
+            self.kill()
+
+class Gold2(pg.sprite.Sprite):
+    def __init__(self, game, plat):
+        self._layer = POW_LAYER
+        pg.sprite.Sprite.__init__(self)
+        self.game = game
+        self.plat = plat
+        self.type = rd.choice(['gold'])
+        self.image = self.game.spritesheet.get_image(244, 1981, 61, 61)
         self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
         self.rect.centerx = self.plat.rect.centerx
