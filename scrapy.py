@@ -28,4 +28,4 @@ for i in range(184):
         else:
             print("文件已存在")
     except:
-        print("爬去失败")
+        print("爬取失败")
